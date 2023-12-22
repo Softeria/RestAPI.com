@@ -1,0 +1,251 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "Access": {
+      "defaultProperties": [],
+      "description": "An access object specifies access for one or more roles per method.",
+      "properties": {
+        "method": {
+          "$ref": "#/definitions/Method",
+          "description": "Name of method."
+        },
+        "roleNames": {
+          "description": "Array of role names that have access to the method.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["method", "roleNames"],
+      "type": "object"
+    },
+    "ApiSchema": {
+      "defaultProperties": [],
+      "properties": {
+        "collections": {
+          "items": {
+            "$ref": "#/definitions/Collection"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["collections"],
+      "type": "object"
+    },
+    "ApiUserRole": {
+      "defaultProperties": [],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "name"],
+      "type": "object"
+    },
+    "BuiltInTypes": {
+      "enum": ["boolean", "date", "date-time", "decimal", "guid", "integer", "string"],
+      "type": "string"
+    },
+    "Collection": {
+      "defaultProperties": [],
+      "description": "A collection object specifies all metadata about a collection.",
+      "properties": {
+        "access": {
+          "description": "Access specification for the collection.",
+          "items": {
+            "$ref": "#/definitions/Access"
+          },
+          "type": "array"
+        },
+        "description": {
+          "description": "Description of the collection.",
+          "maxLength": 1024,
+          "type": ["null", "string"]
+        },
+        "id": {
+          "description": "Internal id for the collection.",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the collection.",
+          "maxLength": 50,
+          "type": "string"
+        },
+        "properties": {
+          "description": "Array of properties that belong to the collection.",
+          "items": {
+            "$ref": "#/definitions/Property"
+          },
+          "type": "array"
+        },
+        "views": {
+          "description": "Array of views for the collection.",
+          "items": {
+            "$ref": "#/definitions/View"
+          },
+          "type": ["array", "null"]
+        }
+      },
+      "required": ["access", "name", "properties"],
+      "type": "object"
+    },
+    "IntegerAttributes": {
+      "defaultProperties": [],
+      "description": "Attributes specific to integer type-properties.",
+      "properties": {
+        "defaultValue": {
+          "description": "The default value.",
+          "type": "number"
+        },
+        "maxValue": {
+          "description": "Max value.",
+          "type": "number"
+        },
+        "minValue": {
+          "description": "Minimum value.",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "Method": {
+      "enum": ["DELETE", "GET", "PATCH", "POST", "PUT"],
+      "type": "string"
+    },
+    "Property": {
+      "defaultProperties": [],
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "isRequired": {
+          "default": false,
+          "description": "Indicates whether the property is mandatory.",
+          "type": "boolean"
+        },
+        "isUnique": {
+          "default": false,
+          "description": "Indicates whether the property value should be unique for the collection.",
+          "type": "boolean"
+        },
+        "name": {
+          "description": "The propery name.",
+          "maxLength": 50,
+          "type": "string"
+        },
+        "typeName": {
+          "description": "The type name.",
+          "maxLength": 50,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": ["name", "typeName"],
+      "type": "object",
+      "allOf": [
+        {
+          "if": {
+            "properties": { "typeName": { "const": "string" } }
+          },
+          "then": {
+            "properties": {
+              "stringAttributes": {
+                "$ref": "#/definitions/StringAttributes"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "typeName": { "const": "integer" } }
+          },
+          "then": {
+            "properties": {
+              "integerAttributes": {
+                "$ref": "#/definitions/IntegerAttributes"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "StringAttributes": {
+      "defaultProperties": [],
+      "description": "Attributes specific to string type-properties.",
+      "properties": {
+        "defaultValue": {
+          "description": "A default value for the string.",
+          "type": "string"
+        },
+        "maxLength": {
+          "description": "Max. length of the string.",
+          "type": "number"
+        },
+        "minLength": {
+          "description": "Minimum length of the string.",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "View": {
+      "defaultProperties": [],
+      "description": "A view specifies an abstraction layer to your collection.\nYou can specify a subset of properties from your collection to be included in a view.\nAlso you can specify access for the view.",
+      "properties": {
+        "access": {
+          "description": "Access specification for the view.",
+          "items": {
+            "$ref": "#/definitions/Access"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the view.",
+          "type": "string"
+        },
+        "properties": {
+          "description": "Array of properties to include in this view.\nA property must exist in the root collection.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": ["access", "name", "properties"],
+      "type": "object"
+    },
+    "ViewProperty": {
+      "defaultProperties": [],
+      "description": "A reference to a property in the parent collection.",
+      "properties": {
+        "name": {
+          "description": "Name of the property.",
+          "type": "string"
+        },
+        "refId": {
+          "description": "Reference id.",
+          "type": "string"
+        }
+      },
+      "required": ["name", "refId"],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "collections": {
+      "items": {
+        "$ref": "#/definitions/Collection"
+      },
+      "type": "array"
+    }
+  },
+  "type": "object",
+  "required": ["collections"]
+}
